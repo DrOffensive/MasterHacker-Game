@@ -56,7 +56,14 @@ public class HackOS_directory : HackOs_driveData
         }
         foreach (HackOs_driveData data in items)
         {
-            prints.Add(PromptScreen.StepIn(data.name, 15, 4) + data.Size() + " Kilobytes");
+            FileSize size = data.Size();
+            int decimals = 0;
+            if (size.Size < 100)
+                decimals = 1;
+            if (size.Size < 10)
+                decimals = 2;
+
+            prints.Add(PromptScreen.StepIn(data.name, 20, 4) + GenericFunctions.LimitDecimals(size.Size, decimals) + " " + size.Unit);
         }
         if (prints.Count > 0)
             return prints.ToArray();

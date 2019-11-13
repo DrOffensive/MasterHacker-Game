@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEditor;
 
 public class HackOS_Base : MonoBehaviour
 {
@@ -20,6 +21,34 @@ public class HackOS_Base : MonoBehaviour
     public UISystem gui;
     public bool ImageViewer, TextEditor, Calculator, PanelExplorer;
 
+    public List<DefaultFile> defaultFiles;
+
+    [System.Serializable]
+    public struct DefaultFile
+    {
+        public string path;
+        public HackOSFile file;
+
+        public HackOS_file GetFile
+        {
+            get
+            {
+                if (file == null)
+                    return null;
+
+                HackOS_file f = SerializeUtility.Load<HackOS_file>(AssetDatabase.GetAssetPath(file.file), false);
+                return f;
+            }
+        }
+
+        public string[] GetPath
+        {
+            get
+            {
+                return path.Split('/');
+            }
+        }
+    }
 
     HackOS_Root root;
 
@@ -56,6 +85,12 @@ public class HackOS_Base : MonoBehaviour
         homeDir.content.Add(devicesDir);
         homeDir.content.Add(documentsDir);
         homeDir.content.Add(picturesDir);
+
+        foreach(DefaultFile file in defaultFiles)
+        {
+            HackOS_directory dir = root.CheckDirectory(file.GetPath);
+            dir.content.Add(file.GetFile);
+        }
 
         //SerializeUtility.FolderCheck(Application.dataPath + profilesPath, true);
         SerializeUtility.Save<HackOS_Root>(root, profilesPath, user + "-Profile", rootFileExtension);

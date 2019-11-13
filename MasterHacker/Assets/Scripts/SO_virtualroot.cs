@@ -11,5 +11,5 @@ public class SO_virtualroot : ScriptableObject
     public HackOS_directory selectedDir = null;
     public CommandParser.SystemPath selectedPath;
 
-    public HackOS_directory rootDirectory;
+    public HackOS_directory rootDirectory = new HackOS_directory("root",false);
 }

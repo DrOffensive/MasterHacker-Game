@@ -9,6 +9,7 @@ public class HackOS_file : HackOs_driveData
     public bool locked;
     public TimeStamp creationTime;
 
+
     public HackOS_file(string n, string e, string c, TimeStamp stamp)
     {
         name = n;
@@ -29,12 +30,28 @@ public class HackOS_file : HackOs_driveData
         return new HackOS_file(this, stamp);
     }
 
-    public override int Size ()
+    public override float SizeInBytes()
     {
-        return content.Length * 8 + (name.Length * 8);
+        return (content.Length * 8) + (name.Length * 8);
+    }
+
+
+    public override FileSize Size ()
+    {
+        float size = SizeInBytes();
+        string[] units = GenericFunctions.FileSizeUnits();
+        int u = 0;
+        float s = size;
+        while (s > 1000 && u < units.Length)
+        {
+            s = s / 1000f;
+            u++;
+        }
+        u = Mathf.Clamp(u, 0, units.Length-1);
+        return new FileSize(s, units[u]);
     }
 }
-
+[System.Serializable]
 public struct TimeStamp
 {
     public int year, month, day, hour, minute, second;
@@ -98,4 +115,10 @@ public struct TimeStamp
 
         return GetMonth() + " " + day.ToString() + dayPostfix + " - " + h + ":" + m + ":" + s;  
     }
+}
+
+[System.Serializable]
+public class HackOSFile
+{
+    public Object file;
 }

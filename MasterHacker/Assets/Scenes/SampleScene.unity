@@ -7175,6 +7175,13 @@ MonoBehaviour:
   TextEditor: 1
   Calculator: 1
   PanelExplorer: 1
+  defaultFiles:
+  - path: root/home/pictures
+    file:
+      file: {fileID: 102900000, guid: 2397f999c1a4cc54cb372b03231077f0, type: 3}
+  - path: root
+    file:
+      file: {fileID: 102900000, guid: a92d04b5993fcd04cb90d0d3388911bf, type: 3}
 --- !u!20 &620060191
 Camera:
   m_ObjectHideFlags: 0
@@ -19041,7 +19048,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   sensivity: {x: 30, y: 20}
-  clamp: {x: 10, y: 10}
+  clamp: {x: 50, y: 20}
 --- !u!1 &1792629716
 GameObject:
   m_ObjectHideFlags: 0

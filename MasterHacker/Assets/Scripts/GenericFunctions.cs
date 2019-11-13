@@ -14,4 +14,15 @@ public static class GenericFunctions
             list[random] = stored;
         }
     }
+
+    public static float LimitDecimals (float value, int decimals)
+    {
+        float pow = Mathf.Pow(10, decimals);
+        return (Mathf.Floor(value * pow) / pow);
+    }
+
+    public static string[] FileSizeUnits()
+    {
+        return new string[] { "Byte(s)", "Kilobyte(s)", "Megabyte(s)", "Gigabyte(s)", "Terabyte(s)", "Petabyte(s)" };
+    }
 }

@@ -27,18 +27,18 @@ public class HackOS_Root
 
     public HackOS_directory CheckDirectory (string[] directories)
     {
-        HackOS_directory cDir;
+        HackOS_directory currentDir;
         if (directories[0].ToLower() == rootDirectory.name.ToLower())
         {
-            cDir = rootDirectory;
+            currentDir = rootDirectory;
             for (int i = 1; i < directories.Length; i++)
             {
                 bool found = false;
-                foreach(HackOs_driveData data in cDir.content)
+                foreach(HackOs_driveData data in currentDir.content)
                 {
                     if(data.name.ToLower()==directories[i].ToLower() && data is HackOS_directory)
                     {
-                        cDir = (HackOS_directory)data;
+                        currentDir = (HackOS_directory)data;
                         found = true;
                         break;
                     }
@@ -46,7 +46,7 @@ public class HackOS_Root
                 if (!found)
                     return null;
             }
-            return cDir;
+            return currentDir;
         } else
         {
             return null;

@@ -6,9 +6,7 @@ public class CommandParser : MonoBehaviour
 {
     public HackOS_Base OS;
     public string listDirContent, mountDir, oneDirUp;
-
     Queue<Command> waitingCommands;
-
     Coroutine currentCommand;
 
     [System.Serializable]

@@ -5,10 +5,12 @@ using UnityEditor;
 
 public class CreateHackOSFile : EditorWindow
 {
-    string extention = "rf", path = "StandardFiles", filename = "default";
+    string extention = "rf", path = "StandardFiles", filename = "default", hOSfilename = "";
 
     int year = 1982, month = 7, day = 13, hour = 23, minute = 52, second = 9;
 
+
+    GUIStyle bold = new GUIStyle(), standard = new GUIStyle();
     Object target;
 
     Object o;
@@ -20,6 +22,10 @@ public class CreateHackOSFile : EditorWindow
     [MenuItem("HackOS/Create Hack OS File")]
     static void Init()
     {
+        GUIStyle bold = new GUIStyle();
+        GUIStyle standard = new GUIStyle();
+        standard.fontStyle = FontStyle.Normal;
+        bold.fontStyle = FontStyle.Bold;
         // Get existing open window or if none, make a new one:
         CreateHackOSFile window = (CreateHackOSFile)EditorWindow.GetWindow(typeof(CreateHackOSFile));
         window.name = "HackOS File Converter";
@@ -28,25 +34,40 @@ public class CreateHackOSFile : EditorWindow
 
 
 
-    void FormatImage (Texture2D image)
+    string FormatImage (Texture2D image)
     {
         string serial = "[" + image.width + "x" + image.height + "];";
         Color[] pixels = image.GetPixels();
         foreach (Color c in pixels)
             serial += c.r + "," + c.g + "," + c.b + "," + c.a + ";";
+
+        return serial;
     }
 
-    void FormatImage(Sprite image)
+    string FormatImage(Sprite image)
     {
-
+        Texture2D img = image.texture;
+        Rect imgSize = image.textureRect;
+        Vector2 imgOffset = image.textureRectOffset;
+        string serial = "[" + imgSize.width + "x" + imgSize.height + "];";
+        Color[] pixels = new Color[(int)imgSize.width * (int)imgSize.height];
+        for (int y = 0; y < imgSize.height; y++)
+        {
+            for (int x = 0; x < imgSize.width; x++)
+            {
+                int i = (int)((y * imgSize.width) + x);
+                Color c = img.GetPixel((int)imgOffset.x + x, (int)imgOffset.y + y);
+                serial += c.r + "," + c.g + "," + c.b + "," + c.a + ";";
+            }
+        }
+        
+        return serial;
     }
 
     private void OnGUI()
     {
         int ind = EditorGUI.indentLevel;
         EditorGUI.indentLevel++;
-        GUIStyle bold = new GUIStyle();
-        bold.fontStyle = FontStyle.Bold;
         GUILayout.Space(8);
 
         EditorGUILayout.LabelField(".../Assets/" + path + "/" + filename + "." + extention, bold);
@@ -89,18 +110,29 @@ public class CreateHackOSFile : EditorWindow
         }
 
         GUILayout.Space(8);
-        o = EditorGUILayout.ObjectField("File: ", o, typeof(Object), false);
         filename = EditorGUILayout.TextField("File Name: ", filename);
+        GUILayout.Space(3);
+        o = EditorGUILayout.ObjectField("File: ", o, typeof(Object), false);
+        hOSfilename = EditorGUILayout.TextField("HackOS File Name (including HackOS extention): ", hOSfilename);
 
         if (o!=null)
         {
+            string[] fullFileName = hOSfilename.Split('.'); 
             Texture2D img = o as Texture2D;
             if( img!=null)
             {
                 if(GUILayout.Button("Convert Image"))
                 {
-                    FormatImage(img);
-                    o = null;
+                    if (img.isReadable)
+                    {
+                        string content = FormatImage(img);
+                        HackOS_file file = new HackOS_file(fullFileName[0], fullFileName[1], content, new TimeStamp(year, month, day, hour, minute, second));
+                        SerializeUtility.Save<HackOS_file>(file, "/" + path, filename, extention);
+                        o = null;
+                    } else
+                    {
+                        Debug.LogWarning(img.name + " not set to readable");
+                    }
                 }
             }
             Sprite spr = o as Sprite;
@@ -108,7 +140,9 @@ public class CreateHackOSFile : EditorWindow
             {
                 if (GUILayout.Button("Convert Sprite"))
                 {
-                    FormatImage(spr);
+                    string content = FormatImage(spr);
+                    HackOS_file file = new HackOS_file(fullFileName[0], fullFileName[1], content, new TimeStamp(year, month, day, hour, minute, second));
+                    SerializeUtility.Save<HackOS_file>(file, "/" + path, filename, extention);
                     o = null;
                 }
             }
@@ -117,6 +151,9 @@ public class CreateHackOSFile : EditorWindow
             {
                 if (GUILayout.Button("Convert Text"))
                 {
+                    string content = txt.text;
+                    HackOS_file file = new HackOS_file(fullFileName[0], fullFileName[1], content, new TimeStamp(year, month, day, hour, minute, second));
+                    SerializeUtility.Save<HackOS_file>(file, "/" + path, filename, extention);
                     o = null;
                 }
             }
@@ -124,4 +161,6 @@ public class CreateHackOSFile : EditorWindow
 
         EditorGUI.indentLevel = ind;
     }
+
+    
 }
