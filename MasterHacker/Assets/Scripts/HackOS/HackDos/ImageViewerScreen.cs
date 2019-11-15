@@ -115,7 +115,7 @@ public class ImageViewerScreen : HackDosScreenBase
 
     public enum ColorMode
     {
-        BlackWhite, GrayScale, FullColor
+        BlackWhite, GrayScale, LowRes, midRes, FullColor
     }
 
     public override void NextSelect()
@@ -178,6 +178,12 @@ public class ImageViewerScreen : HackDosScreenBase
             case ColorMode.GrayScale:
                 float aveg = (color.r + color.b + color.g) / 3;
                 return new Color(aveg, aveg, aveg, 1);
+
+            case ColorMode.LowRes:
+                return new Color((color.r * 8) / 1, (color.g * 8) / 1, (color.b * 4) / 1);
+
+            case ColorMode.midRes:
+                return new Color((color.r * 4) / 1, (color.g * 4) / 1, (color.b * 2) / 1);
 
             default: return color;
         }
