@@ -32,7 +32,7 @@ public class HackOS_file : HackOs_driveData
 
     public override float SizeInBytes()
     {
-        return (content.Length * 8) + (name.Length * 8);
+        return (content.Length * 4) + (name.Length * 4);
     }
 
 

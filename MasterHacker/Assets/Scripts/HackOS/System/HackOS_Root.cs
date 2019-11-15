@@ -52,5 +52,24 @@ public class HackOS_Root
             return null;
         }
     }
+
+    public HackOS_file GetFile(CommandParser.SystemPath path)
+    {
+        HackOS_directory directory = CheckDirectory(path.directories.ToArray());
+        if(directory!=null && path.file!="")
+        {
+            foreach(HackOs_driveData data in directory.content)
+            {
+                if(data is HackOS_file)
+                {
+                    HackOS_file file = (HackOS_file)data;
+                    if (file.name.ToLower().Equals(path.file.ToLower()) && (file.extension.ToLower().Equals(path.fileExtention.ToLower()) || path.fileExtention == ""))
+                        return file;
+                }
+            }
+        }
+
+        return null;
+    }
     
 }

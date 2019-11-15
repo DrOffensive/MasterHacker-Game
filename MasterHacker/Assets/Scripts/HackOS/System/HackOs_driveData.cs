@@ -26,7 +26,7 @@ public abstract class HackOs_driveData
 
     public virtual float SizeInBytes ()
     {
-        return name.Length * 8;
+        return name.Length * 4;
     }
 
     public virtual FileSize Size ()

@@ -5,16 +5,20 @@ using UnityEngine.UI;
 
 public class PromptScreen : HackDosScreenBase
 {
+    [SerializeField]
     List<string> mountedDir = new List<string>() { "root" };
     public string bootText;
     public CommandParser parser;
     public Text[] lines;
     int currentLine = 0;
 
+    public AudioSource audioSource;
+    public AudioClip[] keyboardClacks;
+
     public int CurrentLine { get => currentLine; }
     public List<string> MountedDir { get => mountedDir; }
 
-    public void SetMountedDir (List<string> dir) { mountedDir = dir; }
+    public void SetMountedDir (List<string> dir) { Debug.Log("#3"); mountedDir = dir; }
 
     bool ynPrompt, pwPrompt;
 
@@ -150,7 +154,13 @@ public class PromptScreen : HackDosScreenBase
 
     public override void OnAnyKey()
     {
-        //throw new System.NotImplementedException();
+        if(audioSource != null)
+        {
+            AudioClip clip = keyboardClacks[Random.Range(0, keyboardClacks.Length)];
+            audioSource.clip = clip;
+            audioSource.Stop();
+            audioSource.Play();
+        }
     }
 
     public override void PrevSelect()

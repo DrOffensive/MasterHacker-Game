@@ -52,7 +52,7 @@ public class HackOS_directory : HackOs_driveData
         List<string> prints = new List<string>();
         foreach(HackOS_directory dir in directories)
         {
-            prints.Add(PromptScreen.StepIn("/" + dir.name + "/", 15, 4) + "[Directory]");
+            prints.Add(PromptScreen.StepIn("- " + dir.name + "/", 15, 4) + "[Directory]");
         }
         foreach (HackOs_driveData data in items)
         {
@@ -63,7 +63,7 @@ public class HackOS_directory : HackOs_driveData
             if (size.Size < 10)
                 decimals = 2;
 
-            prints.Add(PromptScreen.StepIn(data.name, 20, 4) + GenericFunctions.LimitDecimals(size.Size, decimals) + " " + size.Unit);
+            prints.Add(PromptScreen.StepIn("- " + data.name + (data is HackOS_file ? "." + ((HackOS_file)data).extension : "") , 20, 4) + GenericFunctions.LimitDecimals(size.Size, decimals) + " " + size.Unit);
         }
         if (prints.Count > 0)
             return prints.ToArray();

@@ -39,7 +39,7 @@ public class CreateHackOSFile : EditorWindow
         string serial = "[" + image.width + "x" + image.height + "];";
         Color[] pixels = image.GetPixels();
         foreach (Color c in pixels)
-            serial += c.r + "," + c.g + "," + c.b + "," + c.a + ";";
+            serial += GenericFunctions.RGBAtoHex(c) + ";";
 
         return serial;
     }
@@ -57,7 +57,7 @@ public class CreateHackOSFile : EditorWindow
             {
                 int i = (int)((y * imgSize.width) + x);
                 Color c = img.GetPixel((int)imgOffset.x + x, (int)imgOffset.y + y);
-                serial += c.r + "," + c.g + "," + c.b + "," + c.a + ";";
+                serial += GenericFunctions.RGBAtoHex(c) + ";";
             }
         }
         

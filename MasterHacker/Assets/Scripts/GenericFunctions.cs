@@ -25,4 +25,65 @@ public static class GenericFunctions
     {
         return new string[] { "Byte(s)", "Kilobyte(s)", "Megabyte(s)", "Gigabyte(s)", "Terabyte(s)", "Petabyte(s)" };
     }
+
+    public static string RGBAtoHex (Color rgba)
+    {
+        return "#" + ColorUtility.ToHtmlStringRGBA(rgba);
+    }
+
+    public static Color HexToRGBA (string hex)
+    {
+        Color color = new Color();
+        if (hex.StartsWith("#"))
+        {
+            ColorUtility.TryParseHtmlString(hex, out color);
+            return color;
+        }
+        else
+            return Color.black;
+    }
+
+    public static string RemoveChar (char charToDelete, string text)
+    {
+        string t = "";
+        foreach(char c in text)
+        {
+            if (c != charToDelete)
+                t += c;
+        }
+        return t;
+    }
+
+    public static string RemoveChars (List<char> charsToDelete, string text)
+    {
+        string t = "";
+        foreach (char c in text)
+        {
+            if (!charsToDelete.Contains(c))
+                t += c;
+        }
+        return t;
+    }
+}
+
+[System.Serializable]
+public struct RangeConverter
+{
+    [System.Serializable]
+    public struct RangeItem
+    {
+        public float value, output;
+    }
+
+    public List<RangeItem> items;
+
+    public float Evaluate (float input)
+    {
+        for(int i = 0; i < items.Count; i++)
+        {
+            if (input <= items[i].value)
+                return items[i].output;
+        }
+        return items[items.Count - 1].output;
+    }
 }

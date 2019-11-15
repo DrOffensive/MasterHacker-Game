@@ -9,6 +9,16 @@ public class CommandParser : MonoBehaviour
     Queue<Command> waitingCommands;
     Coroutine currentCommand;
 
+    public List<HackOSSystem> installedSystems;
+    public List<WordReplace> wordReplaces;
+
+
+    [System.Serializable]
+    public class WordReplace
+    {
+        public string word, replaceWith;
+    }
+
     [System.Serializable]
     public class StringCommand
     {
@@ -44,7 +54,7 @@ public class CommandParser : MonoBehaviour
     {
         string command;
         PromptScreen screen;
-        bool refocusOnComplete;
+        public bool refocusOnComplete;
 
         public Command(string command, PromptScreen screen, bool refocusOnComplete)
         {
@@ -81,10 +91,17 @@ public class CommandParser : MonoBehaviour
     public IEnumerator ParseCommand (Command command)
     {
         string[] words = command.CommandString.ToLower().Split(' ');
-        
-        SystemPath targetPath = new SystemPath(command.Screen.MountedDir);
 
-        if(words[0].Contains("/"))
+        List<string> cPath = command.Screen.MountedDir;
+        List<string> sPath = new List<string>();
+        foreach(string dir in cPath)
+        {
+            sPath.Add(dir);
+        }
+
+        SystemPath targetPath = new SystemPath(sPath);
+
+        if (words[0].Contains("/"))
         {
             string[] path = words[0].Split('/');
 
@@ -93,8 +110,7 @@ public class CommandParser : MonoBehaviour
                 o++;
             if (o < path.Length)
             {
-                Debug.Log(path[o]);
-                if (path[o] == command.Screen.MountedDir[0])
+                if (path[o] == sPath[0])
                 {
                     targetPath = GetSystemPath(new List<string>(), path);
                     string p = "";
@@ -105,13 +121,39 @@ public class CommandParser : MonoBehaviour
                 else
                 {
                     string[] p = new string[path.Length - o];
-                    for(int i = 0; i < path.Length - o; i++)
+                    for (int i = 0; i < path.Length - o; i++)
                     {
                         p[i] = path[o + i];
                     }
-                    Debug.Log(p);
-                    targetPath = GetSystemPath(command.Screen.MountedDir, p);
+                    targetPath = GetSystemPath(sPath, p);
                 }
+                string[] w = new string[words.Length - 1];
+                for (int i = 1; i < words.Length; i++)
+                {
+                    w[i - 1] = words[i];
+                }
+                words = w;
+            }
+            if (OS.Root.CheckDirectory(targetPath.directories.ToArray()) == null)
+            {
+                string printPath = "";
+                foreach (string dir in targetPath.directories)
+                {
+                    printPath += dir + "/";
+                }
+                targetPath.failed = "Unknown directory " + printPath;
+            }
+
+        }
+        else if (words[0].Contains("."))
+        {
+            string[] fileName = words[0].Split('.');
+            SystemPath path = new SystemPath(sPath, fileName[0], fileName[1], "No such file " + words[0]);
+            HackOS_file file = command.Screen.parser.OS.Root.GetFile(path);
+            targetPath = path;
+            if (file!=null)
+            {
+                targetPath.failed = "";
                 string[] w = new string[words.Length - 1];
                 for (int i = 1; i < words.Length; i++)
                 {
@@ -121,24 +163,40 @@ public class CommandParser : MonoBehaviour
             }
         } else
         {
-            targetPath = new SystemPath(command.Screen.MountedDir);
+            targetPath = new SystemPath(sPath);
         }
 
-        if(OS.Root.CheckDirectory(targetPath.directories.ToArray()) == null) {
-            string path = "";
-            foreach(string dir in targetPath.directories)
-            {
-                path += dir + "/";
-            }
-            targetPath.failed = "Unknown directory " + path;
-        }
-
-        if(targetPath.failed != "")
+        bool systemUsed = false;
+        if (targetPath.failed != "")
         {
             command.Screen.InsertLine(targetPath.failed);
         }else
         {
-            if (words.Length > 0) {
+            if (words.Length > 0)
+            {
+                foreach (HackOSSystem system in installedSystems)
+                {
+                    Debug.Log(words[0]);
+                    if (words[0].ToLower().Equals(system.entryPoint.command.ToLower()))
+                    {
+                        /*string message = system.entryMessage;
+                        message = message.Replace("<file>", targetPath.file);
+                        message = message.Replace("<ext>", targetPath.fileExtention);
+
+                        command.Screen.InsertLine(message);*/
+                        systemUsed = true;
+                        yield return null;
+
+                        system.ParseCommandLine(words, command.Screen, targetPath);
+                        while (!system.Complete)
+                        {
+                            yield return null;
+                        }
+                        break;
+                    }
+                }
+            }
+            if (words.Length > 0 && !systemUsed) {
                 if (targetPath.file == "" && targetPath.fileExtention == "")
                 {
                     if (words[0].ToLower() == listDirContent.ToLower())
@@ -159,18 +217,21 @@ public class CommandParser : MonoBehaviour
                     {
                         if(words.Length == 2)
                         {
-                            if(words[1].ToLower() == oneDirUp.ToLower())
+                            if (words[1].ToLower() == oneDirUp.ToLower())
                             {
                                 List<string> dirs = command.Screen.MountedDir;
                                 if (dirs.Count > 1)
                                 {
                                     dirs.RemoveAt(dirs.Count - 1);
+                                    Debug.Log("#1");
                                     command.Screen.SetMountedDir(dirs);
-                                } else
+                                }
+                                else
                                 {
                                     command.Screen.InsertLine("Can't unmount root file, try switching root");
                                 }
-                            } else
+                            }
+                            else
                             {
                                 string[] path = words[1].Split('/');
                                 SystemPath sys;
@@ -182,16 +243,18 @@ public class CommandParser : MonoBehaviour
                                 {
                                     sys = GetSystemPath(command.Screen.MountedDir, path);
                                 }
-
-                                if(sys.failed == "" && sys.file == "" && sys.fileExtention == "")
+                                if (sys.failed == "" && sys.file == "" && sys.fileExtention == "")
                                 {
+                                    Debug.Log("#1");
                                     command.Screen.SetMountedDir(sys.directories);
-                                } else
+                                }
+                                else
                                 {
-                                    if(sys.failed != "")
+                                    if (sys.failed != "")
                                     {
                                         command.Screen.InsertLine(sys.failed);
-                                    } else
+                                    }
+                                    else
                                     {
                                         command.Screen.InsertLine("Invalid Key Word " + sys.file + sys.fileExtention);
                                     }
@@ -208,6 +271,9 @@ public class CommandParser : MonoBehaviour
                     {
                         command.Screen.InsertLine("Unknown Keyword " + words[0]);
                     }
+                } else
+                {
+                    command.Screen.InsertLine("Unknown Keyword " + words[0]);
                 }
             } else
             {
@@ -226,7 +292,7 @@ public class CommandParser : MonoBehaviour
             command.Screen.InsertLine("Unknown keyword " + words[0]);
         }*/
 
-        if(command.RefocusOnComplete)
+        if(command.RefocusOnComplete || systemUsed)
             command.Screen.Refocus();
         yield return null;
         currentCommand = null;
@@ -275,18 +341,5 @@ public class CommandParser : MonoBehaviour
             }
         }
         return new SystemPath(dirs, file, extention, failed);
-    }
-
-    void MountDir (PromptScreen screen, List<string> dir)
-    {
-        if (OS.Root.CheckDirectory(dir.ToArray()) != null) {
-            screen.SetMountedDir(dir);
-        }
-    }
-
-    public StringCommand GetCommand (string command)
-    {
-
-        return null;
     }
 }
