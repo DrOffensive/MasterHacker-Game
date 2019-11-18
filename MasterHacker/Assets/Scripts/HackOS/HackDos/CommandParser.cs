@@ -8,10 +8,15 @@ public class CommandParser : MonoBehaviour
     public string listDirContent, mountDir, oneDirUp;
     Queue<Command> waitingCommands;
     Coroutine currentCommand;
-
+    public float systemVolume = 1;
     public List<HackOSSystem> installedSystems;
     public List<WordReplace> wordReplaces;
 
+    public TextAsset SystemSounds;
+
+    string errorAudioKey = "", welcomeJingle = "";
+
+    public string WelcomeJingle { get => welcomeJingle; }
 
     [System.Serializable]
     public class WordReplace
@@ -73,6 +78,25 @@ public class CommandParser : MonoBehaviour
         if (waitingCommands == null)
             waitingCommands = new Queue<Command>();
             waitingCommands.Enqueue(new Command(command, screen, refocusOnComplete));
+    }
+
+    private void Start()
+    {
+        if (SystemSounds != null) {
+            string rawText = SystemSounds.text;
+            string[] sounds = rawText.Split('|');
+            foreach(string s in sounds)
+            {
+                string[] key = s.Split(':');
+                if (key[0] == "ErrorSound")
+                {
+                    errorAudioKey = key[1];
+                } if(key[0]=="WelcomeJingle")
+                {
+                    welcomeJingle = key[1];
+                }
+            }
+        }
     }
 
     private void Update()
@@ -142,6 +166,7 @@ public class CommandParser : MonoBehaviour
                     printPath += dir + "/";
                 }
                 targetPath.failed = "Unknown directory " + printPath;
+                PlaySystemSound(errorAudioKey);
             }
 
         }
@@ -165,7 +190,7 @@ public class CommandParser : MonoBehaviour
         {
             targetPath = new SystemPath(sPath);
         }
-
+        bool failed = false;
         bool systemUsed = false;
         if (targetPath.failed != "")
         {
@@ -176,7 +201,6 @@ public class CommandParser : MonoBehaviour
             {
                 foreach (HackOSSystem system in installedSystems)
                 {
-                    Debug.Log(words[0]);
                     if (words[0].ToLower().Equals(system.entryPoint.command.ToLower()))
                     {
                         /*string message = system.entryMessage;
@@ -212,6 +236,7 @@ public class CommandParser : MonoBehaviour
                         } else
                         {
                             command.Screen.InsertLine("Unknown Keyword " + words[1]);
+                            PlaySystemSound(errorAudioKey);
                         }
                     }else if (words[0].ToLower() == mountDir.ToLower())
                     {
@@ -223,12 +248,12 @@ public class CommandParser : MonoBehaviour
                                 if (dirs.Count > 1)
                                 {
                                     dirs.RemoveAt(dirs.Count - 1);
-                                    Debug.Log("#1");
                                     command.Screen.SetMountedDir(dirs);
                                 }
                                 else
                                 {
                                     command.Screen.InsertLine("Can't unmount root file, try switching root");
+                                    PlaySystemSound(errorAudioKey);
                                 }
                             }
                             else
@@ -245,18 +270,31 @@ public class CommandParser : MonoBehaviour
                                 }
                                 if (sys.failed == "" && sys.file == "" && sys.fileExtention == "")
                                 {
-                                    Debug.Log("#1");
-                                    command.Screen.SetMountedDir(sys.directories);
+                                    if (OS.Root.CheckDirectory(sys.directories.ToArray()) != null)
+                                    {
+                                        command.Screen.SetMountedDir(sys.directories);
+                                    } else
+                                    {
+                                        command.Screen.InsertLine("Unknown directory: " + words[1]);
+                                        targetPath.failed = "failed";
+                                        PlaySystemSound(errorAudioKey);
+                                        for (int i = 0; i < path.Length; i++)
+                                        {
+                                            command.Screen.MountedDir.RemoveAt(command.Screen.MountedDir.Count - 1);
+                                        }
+                                    }
                                 }
                                 else
                                 {
                                     if (sys.failed != "")
                                     {
                                         command.Screen.InsertLine(sys.failed);
+                                        PlaySystemSound(errorAudioKey);
                                     }
                                     else
                                     {
                                         command.Screen.InsertLine("Invalid Key Word " + sys.file + sys.fileExtention);
+                                        PlaySystemSound(errorAudioKey);
                                     }
                                 }
                             }
@@ -266,14 +304,17 @@ public class CommandParser : MonoBehaviour
                                 command.Screen.InsertLine("Unknown Keyword");
                             else
                                 command.Screen.InsertLine("Unknown Keyword " + words[2]);
+                            PlaySystemSound(errorAudioKey);
                         }
                     } else
                     {
                         command.Screen.InsertLine("Unknown Keyword " + words[0]);
+                        PlaySystemSound(errorAudioKey);
                     }
                 } else
                 {
                     command.Screen.InsertLine("Unknown Keyword " + words[0]);
+                    PlaySystemSound(errorAudioKey);
                 }
             } else
             {
@@ -341,5 +382,27 @@ public class CommandParser : MonoBehaviour
             }
         }
         return new SystemPath(dirs, file, extention, failed);
+    }
+
+    AudioPlayerSystem AudioSystem
+    {
+        get
+        {
+            foreach(HackOSSystem system in installedSystems)
+            {
+                if (system is AudioPlayerSystem)
+                    return (AudioPlayerSystem)system;
+            }
+
+            return null;
+        }
+    }
+
+    void PlaySystemSound (string key)
+    {
+        if(AudioSystem !=null)
+        {
+            AudioSystem.ParseDirectCommand(key + " -vol " + systemVolume);
+        }
     }
 }

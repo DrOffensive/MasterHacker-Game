@@ -12,13 +12,17 @@ public class PromptScreen : HackDosScreenBase
     public Text[] lines;
     int currentLine = 0;
 
+    List<string> CommandHistory = new List<string>();
+    int historyPosition;
+
+
     public AudioSource audioSource;
     public AudioClip[] keyboardClacks;
 
     public int CurrentLine { get => currentLine; }
     public List<string> MountedDir { get => mountedDir; }
 
-    public void SetMountedDir (List<string> dir) { Debug.Log("#3"); mountedDir = dir; }
+    public void SetMountedDir (List<string> dir) { mountedDir = dir; }
 
     bool ynPrompt, pwPrompt;
 
@@ -94,9 +98,40 @@ public class PromptScreen : HackDosScreenBase
     {
     }
 
+    public override void OnUpArrow()
+    {
+        Debug.Log("Up Arrow");
+        if (CommandHistory.Count > 0)
+        {
+            historyPosition = historyPosition - 1 >= -1 ? historyPosition - 1 : CommandHistory.Count - 1;
+            if(historyPosition == -1)
+                GetKeyCheck.SetText("");
+            else
+                GetKeyCheck.SetText(CommandHistory[historyPosition]);
+        }
+    }
+
+    public override void OnDownArrow()
+    {
+        Debug.Log("Down Arrow");
+        if (CommandHistory.Count > 0)
+        {
+            historyPosition = historyPosition + 1 < CommandHistory.Count ? historyPosition + 1 : -1;
+
+            if (historyPosition == -1)
+                GetKeyCheck.SetText("");
+            else
+                GetKeyCheck.SetText(CommandHistory[historyPosition]);
+        }
+    }
+
     public override void OnEnter()
     {
         string[] commandSplit = GetKeyCheck.GetRawText.Split(';');
+
+        CommandHistory.Add(GetKeyCheck.GetRawText);
+        historyPosition = -1;
+
         GetKeyCheck.Defocus();
         LineAdvance();
         List<string> commands = new List<string>();

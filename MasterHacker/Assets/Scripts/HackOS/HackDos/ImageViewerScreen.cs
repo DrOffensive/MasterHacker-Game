@@ -82,11 +82,13 @@ public class ImageViewerScreen : HackDosScreenBase
                 pixel.transform.localRotation = Quaternion.Euler(Vector3.zero);
                 pixel.transform.localScale = Vector3.one;
                 pixels[x, y] = pixel;
+
+
+                if (((y * image.Width) + x) % imageChunk == 0)
+                    yield return null;
             }
 
             build = Mathf.Clamp01((1f / pixelSize.y-1) * y);
-            if(y%imageChunk==0)
-                yield return null;
         }
     }
 

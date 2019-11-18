@@ -31,6 +31,9 @@ public abstract class HackDosScreenBase : MonoBehaviour
     public abstract void OnEnter();
     public abstract void OnAnyKey();
 
+    public virtual void OnUpArrow () { }
+    public virtual void OnDownArrow() { }
+
     public virtual void CheckSpecialKeys()
     {
         if (keyListen)
@@ -44,11 +47,18 @@ public abstract class HackDosScreenBase : MonoBehaviour
             if (GetKeyCheck.EscapeKey)
                 OnEscape();
 
+            if (GetKeyCheck.UpArrow)
+                OnUpArrow();
+
+            if (GetKeyCheck.DownArrow)
+                OnDownArrow();
+
             int prevNext = GetKeyCheck.PrevNext;
             if (prevNext == 1)
                 NextSelect();
             else if (prevNext == -1)
                 PrevSelect();
+
         }
     }
 
@@ -59,6 +69,6 @@ public abstract class HackDosScreenBase : MonoBehaviour
 
     public enum KeyCheckReturn
     {
-        None, Enter, Escape, Next, Previous
+        None, Enter, Escape, Next, Previous, UpArrow, DownArrow
     }
 }

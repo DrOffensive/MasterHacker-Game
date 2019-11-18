@@ -43,6 +43,16 @@ public class LoginScreen :  HackDosScreenBase
             if(CheckLoginInformation())
             {
                 FindObjectOfType<HackDosBase>().loggedIn = true;
+                HackOS_Base os = FindObjectOfType<HackOS_Base>();
+                foreach(HackOSSystem system in os.GetComponent<CommandParser>().installedSystems)
+                {
+                    if(system is AudioPlayerSystem)
+                    {
+                        AudioPlayerSystem audioPlayer = (AudioPlayerSystem)system;
+                        audioPlayer.ParseDirectCommand(os.GetComponent<CommandParser>().WelcomeJingle + " -vol .33");
+                    }
+                }
+
                 FindObjectOfType<HackDosBase>().OpenScreen(HackDosBase.HackDosPanel.LoadScreen);
             } else
             {

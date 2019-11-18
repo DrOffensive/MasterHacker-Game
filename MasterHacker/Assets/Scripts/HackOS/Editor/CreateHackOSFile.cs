@@ -8,7 +8,7 @@ public class CreateHackOSFile : EditorWindow
     string extention = "rf", path = "StandardFiles", filename = "default", hOSfilename = "";
 
     int year = 1982, month = 7, day = 13, hour = 23, minute = 52, second = 9;
-
+    FileCreationMode mode = FileCreationMode.InputBased;
 
     GUIStyle bold = new GUIStyle(), standard = new GUIStyle();
     Object target;
@@ -17,6 +17,15 @@ public class CreateHackOSFile : EditorWindow
     string txt;
 
     bool timeSetOpen = false, fileSetOpen = false;
+
+    string audioKey = "";
+    float sizeLengthMod = 1;
+
+
+    public enum FileCreationMode
+    {
+        InputBased, CustomFile, AudioFile
+    }
 
     // Add menu named "My Window" to the Window menu
     [MenuItem("HackOS/Create Hack OS File")]
@@ -69,7 +78,8 @@ public class CreateHackOSFile : EditorWindow
         int ind = EditorGUI.indentLevel;
         EditorGUI.indentLevel++;
         GUILayout.Space(8);
-
+        mode = (FileCreationMode)EditorGUILayout.EnumPopup(mode);
+        GUILayout.Space(8);
         EditorGUILayout.LabelField(".../Assets/" + path + "/" + filename + "." + extention, bold);
         GUILayout.Space(2);
         if (EditorGUILayout.DropdownButton(new GUIContent((fileSetOpen ? "▼" : "►") + " File Settings"), FocusType.Keyboard, bold))
@@ -110,56 +120,86 @@ public class CreateHackOSFile : EditorWindow
         }
 
         GUILayout.Space(8);
-        filename = EditorGUILayout.TextField("File Name: ", filename);
+        EditorGUILayout.LabelField("Asset name:", bold);
+        filename = GenericFunctions.TextField(filename);
         GUILayout.Space(3);
-        o = EditorGUILayout.ObjectField("File: ", o, typeof(Object), false);
-        hOSfilename = EditorGUILayout.TextField("HackOS File Name (including HackOS extention): ", hOSfilename);
-
-        if (o!=null)
+        EditorGUILayout.LabelField("System File name (incl. extention):", bold);
+        hOSfilename = GenericFunctions.TextField(hOSfilename);
+        if (mode == FileCreationMode.InputBased)
         {
-            string[] fullFileName = hOSfilename.Split('.'); 
-            Texture2D img = o as Texture2D;
-            if( img!=null)
+            o = EditorGUILayout.ObjectField("File: ", o, typeof(Object), false);
+
+            if (o != null)
             {
-                if(GUILayout.Button("Convert Image"))
+                string[] fullFileName = hOSfilename.Split('.');
+                Texture2D img = o as Texture2D;
+                if (img != null)
                 {
-                    if (img.isReadable)
+                    if (GUILayout.Button("Convert Image"))
                     {
-                        string content = FormatImage(img);
+                        if (img.isReadable)
+                        {
+                            string content = FormatImage(img);
+                            HackOS_file file = new HackOS_file(fullFileName[0], fullFileName[1], content, new TimeStamp(year, month, day, hour, minute, second));
+                            SerializeUtility.Save<HackOS_file>(file, "/" + path, filename, extention);
+                            o = null;
+                            AssetDatabase.Refresh();
+                        }
+                        else
+                        {
+                            Debug.LogWarning(img.name + " not set to readable");
+                        }
+                    }
+                }
+                Sprite spr = o as Sprite;
+                if (spr != null)
+                {
+                    if (GUILayout.Button("Convert Sprite"))
+                    {
+                        string content = FormatImage(spr);
                         HackOS_file file = new HackOS_file(fullFileName[0], fullFileName[1], content, new TimeStamp(year, month, day, hour, minute, second));
                         SerializeUtility.Save<HackOS_file>(file, "/" + path, filename, extention);
                         o = null;
-                    } else
+                        AssetDatabase.Refresh();
+                    }
+                }
+                TextAsset txt = o as TextAsset;
+                if (txt != null)
+                {
+                    if (GUILayout.Button("Convert Text"))
                     {
-                        Debug.LogWarning(img.name + " not set to readable");
+                        string content = txt.text;
+                        HackOS_file file = new HackOS_file(fullFileName[0], fullFileName[1], content, new TimeStamp(year, month, day, hour, minute, second));
+                        SerializeUtility.Save<HackOS_file>(file, "/" + path, filename, extention);
+                        o = null;
+                        AssetDatabase.Refresh();
                     }
                 }
             }
-            Sprite spr = o as Sprite;
-            if (spr != null)
+
+            EditorGUI.indentLevel = ind;
+        } else if(mode == FileCreationMode.AudioFile)
+        {
+            string[] fullFileName = hOSfilename.Split('.');
+            EditorGUILayout.LabelField("Sound Library key:", bold);
+            GUILayout.BeginHorizontal();
+            audioKey = GUILayout.TextField(audioKey);
+
+            if(GUILayout.Button("Paste"))
             {
-                if (GUILayout.Button("Convert Sprite"))
-                {
-                    string content = FormatImage(spr);
-                    HackOS_file file = new HackOS_file(fullFileName[0], fullFileName[1], content, new TimeStamp(year, month, day, hour, minute, second));
-                    SerializeUtility.Save<HackOS_file>(file, "/" + path, filename, extention);
-                    o = null;
-                }
+                audioKey = GUIUtility.systemCopyBuffer;
             }
-            TextAsset txt = o as TextAsset;
-            if (txt != null)
+            GUILayout.EndHorizontal();
+
+            sizeLengthMod = EditorGUILayout.FloatField("File size (MB): ", sizeLengthMod);
+            if(GUILayout.Button("Generate AudioFile"))
             {
-                if (GUILayout.Button("Convert Text"))
-                {
-                    string content = txt.text;
-                    HackOS_file file = new HackOS_file(fullFileName[0], fullFileName[1], content, new TimeStamp(year, month, day, hour, minute, second));
-                    SerializeUtility.Save<HackOS_file>(file, "/" + path, filename, extention);
-                    o = null;
-                }
+                HackOS_audioFile audio = new HackOS_audioFile(fullFileName[0], fullFileName[1], audioKey, sizeLengthMod, new TimeStamp(year, month, day, hour, minute, second));
+                SerializeUtility.Save<HackOS_audioFile>(audio, "/" + path, filename, extention);
+                audioKey = "";
+                AssetDatabase.Refresh();
             }
         }
-
-        EditorGUI.indentLevel = ind;
     }
 
     

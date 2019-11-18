@@ -50,7 +50,6 @@ public class HackOSSystem_imgViewer : HackOSSystem
             if (!failed)
             {
                 imageViewerScreen.gameObject.SetActive(true);
-                Debug.Log("viewer: " + file.name);
                 screen.keyListen = false;
                 imageViewerScreen.SetKeyCheck = FindObjectOfType<KeyCheck>();
                 imageViewerScreen.LoadImage(file, mode);

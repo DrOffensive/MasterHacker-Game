@@ -24,10 +24,11 @@ public class KeyCheck : MonoBehaviour
 
     bool holdEnter, enter;
     bool holdEsc, esc;
+    bool upArrow, downArrow;
     bool anyKey;
     int nextPrev = 0;
     public float holdEnterTime = .25f;
-    float enterPressed, escPressed, prevNextPressed;
+    float enterPressed, escPressed, prevNextPressed, upArrowPressed, downArrowPressed;
     public bool cursorBlink;
     public float cursorBlickSpeed = .5f;
     float blink;
@@ -84,6 +85,36 @@ public class KeyCheck : MonoBehaviour
         }
     }
 
+    public bool UpArrow
+    {
+        get
+        {
+            bool a = upArrow;
+            upArrow = false;
+            return a;
+        }
+    }
+
+    public bool DownArrow
+    {
+        get
+        {
+            bool a = downArrow;
+            downArrow = false;
+            return a;
+        }
+    }
+
+    public void SetText (string text)
+    {
+        if(targetText != null)
+        {
+            Debug.Log("Setting text to: '" + text);
+            finalText = text;
+            textIndex = finalText.Length;
+            UpdateText();
+        }
+    }
 
     public void FocusText (Text target, string pref, int maxLength, bool isPassword, bool clearOnFocus)
     {
@@ -246,6 +277,16 @@ public class KeyCheck : MonoBehaviour
             if (prevNextPressed + holdEnterTime >= Time.time)
                 nextPrev = 0;
         }
+        if (upArrow)
+        {
+            if (upArrowPressed + holdEnterTime >= Time.time)
+                upArrow = false;
+        }
+        if (downArrow)
+        {
+            if (downArrowPressed + holdEnterTime >= Time.time)
+                downArrow = false;
+        }
 
         if (targetText!=null && listen)
         {
@@ -376,7 +417,7 @@ public class KeyCheck : MonoBehaviour
                         t += finalText[i];
                     }
                     t += c;
-                    for (int i = 0; i < Mathf.Clamp(finalText.Length - textIndex - 1, 0, finalText.Length); i++)
+                    for (int i = 0; i < finalText.Length - Mathf.Clamp(textIndex - 1, 0, Mathf.Abs(textIndex)) - 1; i++)
                     {
                         t += finalText[i + textIndex];
                     }
@@ -419,6 +460,20 @@ public class KeyCheck : MonoBehaviour
                 nextPrev = 1;
             }
             prevNextPressed = Time.time;
+        }
+
+        if (Input.GetKeyDown(KeyCode.UpArrow))
+        {
+            upArrow = true;
+            upArrowPressed = Time.time;
+            anyKey = true;
+        }
+
+        if (Input.GetKeyDown(KeyCode.DownArrow))
+        {
+            downArrow = true;
+            downArrowPressed = Time.time;
+            anyKey = true;
         }
 
         UpdateText();

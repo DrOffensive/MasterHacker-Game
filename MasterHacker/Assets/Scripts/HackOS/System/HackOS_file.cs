@@ -9,6 +9,10 @@ public class HackOS_file : HackOs_driveData
     public bool locked;
     public TimeStamp creationTime;
 
+    public HackOS_file ()
+    {
+
+    }
 
     public HackOS_file(string n, string e, string c, TimeStamp stamp)
     {
