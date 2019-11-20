@@ -5,7 +5,7 @@ using UnityEngine;
 public class HackOSSystem_imgViewer : HackOSSystem
 {
     public ImageViewerScreen imageViewerScreen;
-    public string bwModifier, greyModifier, colorModifier;
+    public string bwModifier, greyModifier, colorModifier, lowResModifier, midResModifier;
 
     // Start is called before the first frame update
     void Start()
@@ -42,6 +42,10 @@ public class HackOSSystem_imgViewer : HackOSSystem
                         mode = ImageViewerScreen.ColorMode.GrayScale;
                     else if (commandLine[1].Equals(colorModifier))
                         mode = ImageViewerScreen.ColorMode.FullColor;
+                    else if (commandLine[1].Equals(lowResModifier))
+                        mode = ImageViewerScreen.ColorMode.LowRes;
+                    else if (commandLine[1].Equals(midResModifier))
+                        mode = ImageViewerScreen.ColorMode.midRes;
                     else
                         failed = true;
                 }

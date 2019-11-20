@@ -10,7 +10,7 @@ public class ImageViewerScreen : HackDosScreenBase
     public ColorMode imageColorMode;
     public RangeConverter imageHeightToPixelStartScale, imageHeightToChunkJump;
 
-    public bool allowBW = true, allowGreyScale, allowFullColor;
+    public bool allowBW = true, allowGreyScale, allowFullColor, allow8Bit, allow16Bit;
     public RectTransform imagePanel;
 
     public Image pixelPrefab;
@@ -105,6 +105,10 @@ public class ImageViewerScreen : HackDosScreenBase
         if (mode == ColorMode.GrayScale && !allowGreyScale)
             failed = true;
         if (mode == ColorMode.FullColor && !allowFullColor)
+            failed = true;
+        if (mode == ColorMode.LowRes && !allow8Bit)
+            failed = true;
+        if (mode == ColorMode.midRes && !allow16Bit)
             failed = true;
 
         if (!failed)
