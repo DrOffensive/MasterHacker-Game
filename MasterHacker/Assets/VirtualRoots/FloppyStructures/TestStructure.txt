@@ -1,0 +1,2 @@
+<diskName>/new folder/new folder
+<diskName>/new folder/something else

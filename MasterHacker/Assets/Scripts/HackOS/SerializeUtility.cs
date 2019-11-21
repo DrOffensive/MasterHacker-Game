@@ -61,7 +61,6 @@ public static class SerializeUtility
         T data = (T)bf.Deserialize(file);
         file.Close();
 
-        Debug.Log("Loaded " + file.Name);
         return data;
     }
 

@@ -52,6 +52,22 @@ public class HackOS_Base : MonoBehaviour
 
     HackOS_Root root;
 
+    public void InsertFloppyDisk(FloppyDisk floppy)
+    {
+        root.FloppyDrive = floppy.floppyRoot;
+    }
+
+    public void RemoveFloppyDisk()
+    {
+        if (root.FloppyDrive != null)
+        {
+            if (root.FloppyDrive.Equals(root.rootDirectory))
+                root.rootDirectory = root.InternalDrive;
+
+            root.FloppyDrive = null;
+        }
+    }
+
     public HackOS_Root Root { get => root; }
 
     public enum UISystem
@@ -89,7 +105,10 @@ public class HackOS_Base : MonoBehaviour
         foreach(DefaultFile file in defaultFiles)
         {
             HackOS_directory dir = root.CheckDirectory(file.GetPath);
-            dir.content.Add(file.GetFile);
+            if (dir != null)
+                dir.content.Add(file.GetFile);
+            else
+                Debug.LogWarning("Unknown directory: " + file.path + "/");
         }
 
         //SerializeUtility.FolderCheck(Application.dataPath + profilesPath, true);

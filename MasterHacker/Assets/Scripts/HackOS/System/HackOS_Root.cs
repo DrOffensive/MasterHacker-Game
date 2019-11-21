@@ -9,12 +9,18 @@ public class HackOS_Root
     string password;
 
     public HackOS_directory rootDirectory;
-    
+
+    HackOS_directory internalDrive, floppyDrive, jackConnection;
+
+    public HackOS_directory InternalDrive { get => internalDrive; }
+    public HackOS_directory FloppyDrive { get => floppyDrive; set => floppyDrive = value; }
+    public HackOS_directory JackConnection { get => jackConnection; set => jackConnection = value; }
+
     public HackOS_Root(string user, string pswrd, HackOS_directory root)
     {
         userName = user;
         password = pswrd;
-        rootDirectory = root;
+        rootDirectory = internalDrive = root;
     }
 
     public bool CheckPassword (string input)

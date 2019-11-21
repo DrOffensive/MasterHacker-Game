@@ -7368,6 +7368,7 @@ GameObject:
   - component: {fileID: 620060190}
   - component: {fileID: 620060193}
   - component: {fileID: 620060194}
+  - component: {fileID: 620060197}
   - component: {fileID: 620060195}
   - component: {fileID: 620060196}
   m_Layer: 0
@@ -7396,14 +7397,14 @@ MonoBehaviour:
   rootFileExtension: root
   txtExtension: txt
   imgExtension: img
-  sfxExtension: aux
+  sfxExtension: aud
   exeExtension: exc
   shortcutExtension: shc
   gui: 1
   ImageViewer: 1
   TextEditor: 1
-  Calculator: 1
-  PanelExplorer: 1
+  Calculator: 0
+  PanelExplorer: 0
   defaultFiles:
   - path: root/home/pictures
     file:
@@ -7525,6 +7526,7 @@ MonoBehaviour:
   installedSystems:
   - {fileID: 620060195}
   - {fileID: 620060196}
+  - {fileID: 620060197}
   wordReplaces: []
   SystemSounds: {fileID: 4900000, guid: 66a148d2041a56249afafd2c7252701a, type: 3}
 --- !u!114 &620060195
@@ -7573,6 +7575,28 @@ MonoBehaviour:
   library: {fileID: 153292918}
   noEchoModifier: -noEcho
   volumeModifier: -vol
+--- !u!114 &620060197
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 620060189}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7996783e0d0cea248beaa7aae9877b30, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  entryPoint:
+    name: Disk Mount
+    command: mount
+    confirm: 0
+    password: 0
+  entryMessage: 
+  rootDrive: -root
+  floppyDrive: -floppy
+  jacklink: -jacklink
+  check: -chk
 --- !u!1001 &627196221
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -27594,6 +27618,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8141484247918311204}
+  - component: {fileID: 5091043475714803000}
   m_Layer: 0
   m_Name: FloppyDisk
   m_TagString: Untagged
@@ -27601,6 +27626,25 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
+--- !u!114 &5091043475714803000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5091043475714802999}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 041372885e21aed42a2dbd3a23f74355, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  diskName: Floppy
+  floppyRoot:
+    name: 
+    hidden: 0
+    locked: 0
+  fileStructure: {fileID: 4900000, guid: 03e93dc1baf8870408f55847402e66b4, type: 3}
+  defaultFiles: []
 --- !u!23 &5140953789792776182
 MeshRenderer:
   m_ObjectHideFlags: 0
